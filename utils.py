@@ -22,7 +22,7 @@ def generate_text_simple(model, idx, max_new_tokens, context_size):
 def text_to_token_ids(text, tokenizer):
     encoded = tokenizer.encode(text)
     encoded_tensor = torch.tensor(encoded).unsqueeze(0) # Add batch dimension
-    return encoded_tensor.to('cuda')
+    return encoded_tensor.to(args.device)
 
 def token_ids_to_text(token_ids, tokenizer):
     flat = token_ids.squeeze(0)   # Removes batch dimension
@@ -48,7 +48,7 @@ class ModelDataset(Dataset):
 def create_dataloader_v1(text, tokenizer, batch_size=args.max_batch_size,
                          max_length=args.max_seq_len, stride=128, shuffle=True,
                          drop_last=True, num_workers=0): 
-    dataset = GPTDatasetV1(text, tokenizer, max_length, stride) 
+    dataset = ModelDataset(text, tokenizer, max_length, stride) 
     dataloader = DataLoader(
         dataset,
         batch_size=batch_size,
