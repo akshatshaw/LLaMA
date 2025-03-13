@@ -51,7 +51,8 @@ class RotaryEmbeddings(torch.nn.Module):
         assert head_dim%2==0 #dimension should be divisible by 2
         #theta_i=10000^(-2(i-1)/dim) for i={1,2,...,dim/2}
         theta_num=torch.arange(0,head_dim,2).float()
-        theta=1./(theta**(theta_num/head_dim)).to(device)
+        freqs = 1.0 / (theta ** (theta_num / head_dim))
+        theta = freqs.to(device)
         #write the m positions
         m=torch.arange(seq,device=device)
         #multiply m with every theta
