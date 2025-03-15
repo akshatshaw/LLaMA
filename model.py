@@ -92,6 +92,11 @@ class MHA(nn.Module):
 
         # self.rope = RotaryEmbeddings(head_dim = args.dim, seq_len = args.max_seq_len, device = args.device)
 
+    def reset_kv_cache(self):
+        # Zero out the cache tensors to reset them
+        self.cache_k.zero_()
+        self.cache_v.zero_()
+        
     @staticmethod
     def repeat_kv(x: torch.Tensor, n_rep: int) -> torch.Tensor:
         batch_size, seq_len, n_kv_heads, head_dim = x.shape
@@ -125,8 +130,8 @@ class MHA(nn.Module):
 
 
         # Update KV cache
-        self.cache_k[:batch_size, start_pos:start_pos+seq_len] = xk
-        self.cache_v[:batch_size, start_pos:start_pos+seq_len] = xv
+        self.cache_k[:batch_size, start_pos:start_pos+seq_len] = xk.detach()
+        self.cache_v[:batch_size, start_pos:start_pos+seq_len] = xv.detach()
 
         # Retrieve cached keys/values including current sequence
         keys = self.cache_k[:batch_size, :start_pos+seq_len]
